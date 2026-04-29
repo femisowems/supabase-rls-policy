@@ -2,11 +2,11 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
 import { useStore } from '@/store/useStore';
-import { evaluatePolicy } from '@/lib/engine';
+import { evaluatePolicy, generateTroubleshooting } from '@/lib/engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText, Users, Database, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText, Users, Database, ChevronDown, ChevronUp, Lightbulb, AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogicFlow } from '@/components/LogicFlow';
@@ -24,7 +24,8 @@ export function SimulationDashboard() {
   const [expandedSections, setExpandedSections] = useState({
     results: true,
     logic: true,
-    explanation: true
+    explanation: true,
+    troubleshoot: false
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -56,9 +57,29 @@ export function SimulationDashboard() {
             <CardTitle className="text-base font-semibold">Simulation Results</CardTitle>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" onClick={(e) => { e.stopPropagation(); void runSimulation(); }} className="gap-2 px-4" disabled={isRunning}>
+            {!simulationResult?.allowed && simulationResult && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1.5 h-8 text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive transition-colors hidden sm:flex"
+                onClick={(e) => { e.stopPropagation(); toggleSection('troubleshoot'); }}
+              >
+                <Lightbulb className="w-3.5 h-3.5" />
+                How to fix?
+              </Button>
+            )}
+            <Button 
+              id="run-simulation-btn"
+              size="sm" 
+              onClick={(e) => { e.stopPropagation(); void runSimulation(); }} 
+              className="gap-2 px-4" 
+              disabled={isRunning}
+            >
               <Play className="w-3.5 h-3.5 fill-current" />
               {isRunning ? 'Running...' : 'Run Check'}
+              <kbd className="hidden lg:inline-flex h-4 items-center gap-1 rounded border bg-primary-foreground/20 px-1 font-mono text-[9px] font-medium opacity-80">
+                ↵
+              </kbd>
             </Button>
             {expandedSections.results ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
@@ -107,10 +128,46 @@ export function SimulationDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant={simulationResult.allowed ? 'default' : 'destructive'} className="px-3 py-1">
-                    {simulationResult.allowed ? 'PASS' : 'FAIL'}
-                  </Badge>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <Badge variant={simulationResult.allowed ? 'default' : 'destructive'} className="px-3 py-1 w-fit">
+                      {simulationResult.allowed ? 'PASS' : 'FAIL'}
+                    </Badge>
+                  </div>
                 </div>
+
+                <AnimatePresence>
+                  {expandedSections.troubleshoot && !simulationResult.allowed && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="bg-destructive/5 border border-destructive/10 rounded-xl p-5 space-y-4 mb-2">
+                        <div className="flex items-center gap-2 text-destructive font-bold text-xs uppercase tracking-wider">
+                          <AlertCircle className="w-4 h-4" />
+                          Troubleshooting Checklist
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {generateTroubleshooting(simulationResult).map((step, idx) => {
+                            const [title, description] = step.split(': ');
+                            return (
+                              <div key={idx} className="space-y-2">
+                                <h5 className="text-[11px] font-bold text-foreground/80 flex items-center gap-1.5">
+                                  <span className="flex items-center justify-center w-4 h-4 rounded-full bg-destructive/10 text-[9px]">{idx + 1}</span>
+                                  {title.replace(/\*\*/g, '')}
+                                </h5>
+                                <p className="text-[10px] text-muted-foreground leading-relaxed pl-5">
+                                  {description}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <Separator />
 

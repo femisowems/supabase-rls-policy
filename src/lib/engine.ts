@@ -485,6 +485,63 @@ export type ExplanationInsight = {
   message: string;
 };
 
+export function generateTroubleshooting(result: SimulationResult): string[] {
+  if (!result || result.allowed) return [];
+
+  const steps: string[] = [];
+  const { evaluatedValues, logicTree, parseError } = result;
+
+  // 1. Detect Undefined Columns
+  const undefinedKeys = Object.keys(evaluatedValues).filter(k => evaluatedValues[k] === undefined && !k.startsWith('auth.'));
+  if (undefinedKeys.length > 0) {
+    steps.push(`**Missing Row Data**: Your policy references \`${undefinedKeys.join(', ')}\`, but these columns are missing or undefined in your Sample Row Data. Add them to the Row Editor.`);
+  }
+
+  // 2. Detect Auth UID issues
+  if (evaluatedValues['auth.uid()'] === null || evaluatedValues['auth.uid()'] === undefined) {
+    steps.push(`**Empty Identity**: The policy checks for \`auth.uid()\`, but your current User Simulator context is set to 'Anonymous'. Try selecting a user or setting a UID.`);
+  }
+
+  // 3. Smart Comparison Analysis
+  if (logicTree) {
+    const findFailures = (node: LogicTreeNode) => {
+      if (node.outcome === false && node.kind === 'comparison') {
+        const left = node.children[0];
+        const right = node.children[1];
+        
+        if (left?.label === 'auth.uid()' || right?.label === 'auth.uid()') {
+          const other = left?.label === 'auth.uid()' ? right : left;
+          const authVal = evaluatedValues['auth.uid()'];
+          const otherVal = other?.value;
+          
+          if (authVal && otherVal && authVal !== otherVal) {
+            steps.push(`**UID Mismatch**: \`auth.uid()\` is currently \`"${authVal}"\`, but the row column \`${other?.label}\` is \`"${otherVal}"\`. They must match for equality checks.`);
+          }
+        }
+
+        if (left?.label === 'auth.role()' || right?.label === 'auth.role()') {
+          const role = evaluatedValues['auth.role()'];
+          steps.push(`**Role Restriction**: The policy check \`${node.label}\` failed. Your current role is \`"${role}"\`. Check if the user has the correct role for this operation.`);
+        }
+      }
+      node.children.forEach(findFailures);
+    };
+    findFailures(logicTree);
+  }
+
+  // 4. Parser Limitations
+  if (parseError) {
+    steps.push(`**Advanced SQL**: Your policy uses features not yet fully supported by the simulator. Check if you have subqueries or complex JSON operators.`);
+  }
+
+  // 5. Default Fallback
+  if (steps.length === 0) {
+    steps.push(`**Logic Logic**: The expression evaluated to \`false\`. Inspect the Logic Flow chart below to see exactly where the chain broke.`);
+  }
+
+  return steps;
+}
+
 export function generateExplanation(result: SimulationResult, policyName: string): ExplanationInsight[] {
   if (!result) return [];
 

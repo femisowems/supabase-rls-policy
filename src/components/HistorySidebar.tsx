@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 
 export function HistorySidebar() {
-  const { history, restoreHistory } = useStore();
+  const { history, restoreHistory, isHistoryOpen, setHistoryOpen } = useStore();
 
   const formatTime = (ts: number) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -27,12 +27,15 @@ export function HistorySidebar() {
   };
 
   return (
-    <Sheet>
+    <Sheet open={isHistoryOpen} onOpenChange={setHistoryOpen}>
       <SheetTrigger
         render={
-          <Button variant="outline" size="sm" className="gap-2">
-            <History className="w-4 h-4" />
-            <span className="hidden sm:inline">History</span>
+          <Button variant="outline" size="sm" className="gap-2 h-8">
+            <History className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline text-xs">History</span>
+            <kbd className="hidden md:inline-flex h-4 items-center gap-1 rounded border bg-muted/50 px-1 font-mono text-[9px] font-medium opacity-60">
+              H
+            </kbd>
             {history.length > 0 && (
               <Badge variant="secondary" className="ml-1 px-1 h-4 min-w-[16px] flex items-center justify-center text-[10px]">
                 {history.length}

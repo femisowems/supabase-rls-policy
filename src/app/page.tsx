@@ -9,7 +9,8 @@ import { SimulationDashboard } from '@/components/SimulationDashboard';
 import { UrlStateSync } from '@/components/UrlStateSync';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { HistorySidebar } from '@/components/HistorySidebar';
-import { ShieldCheck, Zap, RefreshCw, Link2 } from 'lucide-react';
+import { ShortcutsDialog } from '@/components/ShortcutsDialog';
+import { ShieldCheck, Zap, RefreshCw, Link2, Check, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,8 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings2, Database, UserCircle2, Info } from 'lucide-react';
 
 export default function Home() {
-  const reset = useStore((state) => state.reset);
-  const serialize = useStore((state) => state.serialize);
+  const { reset, serialize, isHistoryOpen, setHistoryOpen, setPresetsOpen, isShortcutsOpen, setShortcutsOpen } = useStore();
   const [currentTime, setCurrentTime] = useState<string | null>(null);
   const [shareConfirmed, setShareConfirmed] = useState(false);
 
@@ -42,17 +42,46 @@ export default function Home() {
         e.preventDefault();
         void copyShareLink();
       }
+      
+      if (isCtrlOrCmd && e.key === 'p') {
+        e.preventDefault();
+        setPresetsOpen(true);
+      }
+
+      if (isCtrlOrCmd && e.key === 'h') {
+        e.preventDefault();
+        setHistoryOpen(!isHistoryOpen);
+      }
+
+      if (isCtrlOrCmd && e.key === '\\') {
+        e.preventDefault();
+        reset();
+      }
+
+      if (isCtrlOrCmd && e.key === 'Enter') {
+        e.preventDefault();
+        const runBtn = document.getElementById('run-simulation-btn');
+        if (runBtn) runBtn.click();
+      }
+
+      if (isCtrlOrCmd && (e.key === '/' || e.key === '?')) {
+        e.preventDefault();
+        setShortcutsOpen(!isShortcutsOpen);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isHistoryOpen, isShortcutsOpen, reset, serialize, setHistoryOpen, setPresetsOpen, setShortcutsOpen]);
 
   const copyShareLink = async () => {
-    const encoded = serialize();
-    await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}#${encoded}`);
-    setShareConfirmed(true);
-    setTimeout(() => setShareConfirmed(false), 2000);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareConfirmed(true);
+      setTimeout(() => setShareConfirmed(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link', err);
+    }
   };
 
   return (
@@ -72,13 +101,33 @@ export default function Home() {
 
         <div className="flex items-center gap-2">
           <HistorySidebar />
-          <Button variant="ghost" size="sm" onClick={() => void copyShareLink()} className={`gap-2 text-[11px] h-8 transition-colors ${shareConfirmed ? 'text-green-600 dark:text-green-400' : ''}`}>
-            <Link2 className="w-3 h-3" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShortcutsOpen(true)} 
+            className="w-8 h-8 p-0 rounded-full hover:bg-muted"
+            title="Shortcuts Help"
+          >
+            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+          </Button>
+          <Button 
+            variant={shareConfirmed ? "default" : "ghost"} 
+            size="sm" 
+            onClick={() => void copyShareLink()} 
+            className={`gap-2 text-[11px] h-8 min-w-[80px] transition-all duration-300 ${shareConfirmed ? 'bg-green-600 hover:bg-green-700 text-white border-none scale-105' : ''}`}
+          >
+            {shareConfirmed ? <Check className="w-3 h-3 animate-in zoom-in duration-300" /> : <Link2 className="w-3 h-3" />}
             {shareConfirmed ? 'Copied!' : 'Share'}
+            <kbd className="hidden md:inline-flex h-4 items-center gap-1 rounded border bg-muted/50 px-1 font-mono text-[9px] font-medium opacity-60">
+              S
+            </kbd>
           </Button>
           <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-[11px] h-8">
             <RefreshCw className="w-3 h-3" />
             Reset
+            <kbd className="hidden md:inline-flex h-4 items-center gap-1 rounded border bg-muted/50 px-1 font-mono text-[9px] font-medium opacity-60">
+              \
+            </kbd>
           </Button>
           <div className="h-4 w-px bg-border mx-2" />
           <ThemeToggle />
@@ -200,6 +249,7 @@ export default function Home() {
           <span>Real-time Sync Active</span>
         </div>
       </footer>
+      <ShortcutsDialog />
     </div>
   );
 }

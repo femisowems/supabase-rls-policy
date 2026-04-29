@@ -61,6 +61,7 @@ interface RLSStore {
   userContext: UserContext;
   simulationResult: SimulationResult | null;
   history: HistoryItem[];
+  personas: typeof PERSONAS;
   
   setPolicy: (policy: string) => void;
   setSchema: (schema: TableSchema) => void;
@@ -72,6 +73,17 @@ interface RLSStore {
   reset: () => void;
   serialize: () => string;
   deserialize: (data: string) => void;
+  addPersona: (persona: (typeof PERSONAS)[0]) => void;
+  updatePersona: (name: string, persona: Partial<(typeof PERSONAS)[0]>) => void;
+  deletePersona: (name: string) => void;
+  
+  // UI State
+  isPresetsOpen: boolean;
+  setPresetsOpen: (open: boolean) => void;
+  isHistoryOpen: boolean;
+  setHistoryOpen: (open: boolean) => void;
+  isShortcutsOpen: boolean;
+  setShortcutsOpen: (open: boolean) => void;
 }
 
 export const PRESET_EXAMPLES = [
@@ -301,6 +313,7 @@ export const useStore = create<RLSStore>((set, get) => ({
   userContext: DEFAULT_USER_CONTEXT,
   simulationResult: null,
   history: [],
+  personas: PERSONAS,
 
   setPolicy: (policy) => set({ policy }),
   setSchema: (schema) => set({ schema }),
@@ -342,32 +355,59 @@ export const useStore = create<RLSStore>((set, get) => ({
       rowData: DEFAULT_ROW_DATA,
       userContext: DEFAULT_USER_CONTEXT,
       simulationResult: null,
+      personas: PERSONAS,
     });
   },
-  
+
+  addPersona: (persona) => set((state) => ({ 
+    personas: [...state.personas, persona] 
+  })),
+
+  updatePersona: (name, updated) => set((state) => ({
+    personas: state.personas.map(p => p.name === name ? { ...p, ...updated } : p)
+  })),
+
+  deletePersona: (name) => set((state) => ({ 
+    personas: state.personas.filter(p => p.name !== name) 
+  })),
+
+  isPresetsOpen: false,
   serialize: () => {
-    const state = {
-      p: get().policy,
-      s: get().schema,
-      r: get().rowData,
-      u: get().userContext,
-    };
-    return LZString.compressToBase64(JSON.stringify(state));
+    const state = get();
+    const out: any = {};
+    
+    // Only include if different from defaults to keep URL short
+    if (state.policy !== DEFAULT_POLICY) out.p = state.policy;
+    if (JSON.stringify(state.schema) !== JSON.stringify(DEFAULT_SCHEMA)) out.s = state.schema;
+    if (JSON.stringify(state.rowData) !== JSON.stringify(DEFAULT_ROW_DATA)) out.r = state.rowData;
+    if (JSON.stringify(state.userContext) !== JSON.stringify(DEFAULT_USER_CONTEXT)) out.u = state.userContext;
+    if (JSON.stringify(state.personas) !== JSON.stringify(PERSONAS)) out.ps = state.personas;
+    
+    if (Object.keys(out).length === 0) return '';
+    return LZString.compressToEncodedURIComponent(JSON.stringify(out));
   },
   
   deserialize: (data: string) => {
     try {
-      const json = LZString.decompressFromBase64(data);
+      const json = LZString.decompressFromEncodedURIComponent(data);
       if (!json) return;
       const state = JSON.parse(json);
       set({
-        policy: state.p,
-        schema: state.s,
-        rowData: state.r,
-        userContext: state.u,
+        policy: state.p ?? DEFAULT_POLICY,
+        schema: state.s ?? DEFAULT_SCHEMA,
+        rowData: state.r ?? DEFAULT_ROW_DATA,
+        userContext: state.u ?? DEFAULT_USER_CONTEXT,
+        personas: state.ps ?? PERSONAS,
       });
     } catch (e) {
       console.error('Failed to deserialize state', e);
     }
-  }
+  },
+
+  isPresetsOpen: false,
+  setPresetsOpen: (isPresetsOpen) => set({ isPresetsOpen }),
+  isHistoryOpen: false,
+  setHistoryOpen: (isHistoryOpen) => set({ isHistoryOpen }),
+  isShortcutsOpen: false,
+  setShortcutsOpen: (isShortcutsOpen) => set({ isShortcutsOpen }),
 }));

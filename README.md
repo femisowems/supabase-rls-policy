@@ -1,70 +1,69 @@
-# 🛡️ Supabase RLS Simulator
+# ⚡️ Supabase RLS Policy Simulator
 
-A powerful, visual simulator and debugger for Supabase (PostgreSQL) Row Level Security (RLS) policies. Understand, test, and debug your RLS logic with ease.
+A high-performance, professional-grade playground for designing, testing, and debugging Supabase Row Level Security (RLS) policies. This tool provides a real-time simulation environment to visualize how your policies interact with user identities and row data.
 
-![RLS Simulator Preview](https://raw.githubusercontent.com/supabase/supabase/master/apps/www/public/images/blog/rls-guide/rls-guide-hero.png) *Note: Replace with actual project screenshot*
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC)
 
-## ✨ Features
+## 🚀 Key Features
 
-- **Visual Logic Tree**: See your complex SQL conditions transformed into an interactive flow chart (powered by React Flow).
-- **Live Simulation**: Test policies against custom user contexts (UID, Role, JWT claims) and mock row data.
-- **SQL Parsing**: Real PostgreSQL-compatible parsing using `pg-query-emscripten`.
-- **Explain Mode**: Get human-readable explanations of why a policy granted or denied access.
-- **Theme Support**: Beautiful dark and light modes with a premium aesthetic.
-- **Local First**: Everything runs in your browser; no data leaves your machine.
+### 📚 Policy Library (⌘P)
+Browse a comprehensive collection of RLS patterns—from basic ownership checks to complex JWT claim-based isolation. Choose a preset to instantly populate the editor.
 
-## 🚀 How It Works
+### 🧠 Smart Troubleshooting
+When a simulation fails, the simulator doesn't just say "Denied"—it analyzes your logic and provides **tailored advice**. It detects identity mismatches, missing columns, and role restrictions in real-time.
 
-### The Engine
-The core of the simulator is a custom evaluation engine (`src/lib/engine.ts`) that:
-1. **Extracts** the `USING` clause from your `CREATE POLICY` statement.
-2. **Parses** the expression into an AST (Abstract Syntax Tree).
-3. **Traverses** the tree and evaluates each node against the provided context.
-4. **Traces** the evaluation path to provide detailed feedback.
+### 📊 Logic Flow Visualization
+Understand exactly how PostgreSQL evaluates your `USING` expressions. Our visual logic tree highlights every comparison and boolean operation, showing you precisely where the access chain breaks.
 
-### User Simulation
-Easily mock the `auth.uid()`, `auth.role()`, and `auth.jwt()` functions to see how different users experience your security rules.
+### 🔗 Real-time URL Sync (⌘S)
+Share your exact simulation state—policy, schema, and row data—via a single, beautified URL. We use diff-based compression to keep share links short and clean.
 
-## 🛠️ Tech Stack
+### 🕰 Simulation History (⌘H)
+Never lose a working policy. Every successful check is saved to your local history, allowing you to quickly revert to previous versions of your logic or data.
 
-- **Framework**: [Next.js 15+](https://nextjs.org) (App Router)
-- **Language**: TypeScript
-- **Visualization**: [React Flow](https://reactflow.dev/)
-- **SQL Parser**: [pg-query-emscripten](https://github.com/lfittl/pg-query-emscripten)
-- **Styling**: Tailwind CSS 4, Framer Motion, Lucide Icons
-- **State Management**: Zustand
+## ⌨️ Keyboard Shortcuts
 
-## 🏁 Getting Started
+| Shortcut | Action |
+| :--- | :--- |
+| `⌘ + P` | Open Policy Library |
+| `⌘ + S` | Copy Share Link |
+| `⌘ + H` | Toggle History Sidebar |
+| `⌘ + Enter` | Run Simulation Check |
+| `⌘ + \` | Reset to Defaults |
+| `⌘ + /` | Open Shortcuts Guide |
 
-### Prerequisites
-- Node.js 20+
-- npm / pnpm / yarn
+*Note: Use `Ctrl` instead of `⌘` on Windows/Linux.*
 
-### Installation
+## 🛠 Tech Stack
 
-1. Clone the repository:
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS + Shadcn/UI
+- **Animations**: Framer Motion
+- **Engine**: Custom SQL Parser (Emscripten-based `pg-query`)
+- **State**: Zustand + LZ-based URL Compression
+
+## 🚦 Getting Started
+
+1. **Clone the repo**:
    ```bash
    git clone https://github.com/your-username/supabase-rls-policy.git
-   cd supabase-rls-policy
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. Start the development server:
+3. **Run the development server**:
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. **Open in browser**:
+   Navigate to [http://localhost:3000](http://localhost:3000).
 
-## 🤝 Contributing
+## 📄 License
 
-Contributions are welcome! Whether it's adding support for more SQL operators, improving the UI, or fixing bugs, feel free to open an issue or a PR.
-
-## 📜 License
-
-MIT © [Femi Sowemimo](https://github.com/femisowemimo)
-
+This project is licensed under the MIT License.

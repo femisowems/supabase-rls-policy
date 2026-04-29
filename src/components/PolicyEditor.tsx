@@ -56,10 +56,9 @@ function SqlPreview({ code }: { code: string }) {
 }
 
 export function PolicyEditor() {
-  const { policy, setPolicy, reset } = useStore();
+  const { policy, setPolicy, reset, isPresetsOpen: presetsOpen, setPresetsOpen } = useStore();
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [presetsOpen, setPresetsOpen] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(policy);
@@ -104,8 +103,11 @@ export function PolicyEditor() {
           <Dialog open={presetsOpen} onOpenChange={setPresetsOpen}>
             <DialogTrigger 
               render={
-                <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs">
+                <Button variant="ghost" size="sm" className="h-8 gap-2 px-2 text-xs">
                   Presets
+                  <kbd className="hidden sm:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                    <span className="text-xs">⌘</span>P
+                  </kbd>
                   <ChevronDown className="w-3 h-3" />
                 </Button>
               }
