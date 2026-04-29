@@ -378,7 +378,6 @@ export const useStore = create<RLSStore>((set, get) => ({
     personas: state.personas.filter(p => p.name !== name) 
   })),
 
-  isPresetsOpen: false,
   serialize: () => {
     const state = get();
     const out: any = {};
