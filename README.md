@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛡️ Supabase RLS Simulator
 
-## Getting Started
+A powerful, visual simulator and debugger for Supabase (PostgreSQL) Row Level Security (RLS) policies. Understand, test, and debug your RLS logic with ease.
 
-First, run the development server:
+![RLS Simulator Preview](https://raw.githubusercontent.com/supabase/supabase/master/apps/www/public/images/blog/rls-guide/rls-guide-hero.png) *Note: Replace with actual project screenshot*
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Visual Logic Tree**: See your complex SQL conditions transformed into an interactive flow chart (powered by React Flow).
+- **Live Simulation**: Test policies against custom user contexts (UID, Role, JWT claims) and mock row data.
+- **SQL Parsing**: Real PostgreSQL-compatible parsing using `pg-query-emscripten`.
+- **Explain Mode**: Get human-readable explanations of why a policy granted or denied access.
+- **Theme Support**: Beautiful dark and light modes with a premium aesthetic.
+- **Local First**: Everything runs in your browser; no data leaves your machine.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### The Engine
+The core of the simulator is a custom evaluation engine (`src/lib/engine.ts`) that:
+1. **Extracts** the `USING` clause from your `CREATE POLICY` statement.
+2. **Parses** the expression into an AST (Abstract Syntax Tree).
+3. **Traverses** the tree and evaluates each node against the provided context.
+4. **Traces** the evaluation path to provide detailed feedback.
 
-## Learn More
+### User Simulation
+Easily mock the `auth.uid()`, `auth.role()`, and `auth.jwt()` functions to see how different users experience your security rules.
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework**: [Next.js 15+](https://nextjs.org) (App Router)
+- **Language**: TypeScript
+- **Visualization**: [React Flow](https://reactflow.dev/)
+- **SQL Parser**: [pg-query-emscripten](https://github.com/lfittl/pg-query-emscripten)
+- **Styling**: Tailwind CSS 4, Framer Motion, Lucide Icons
+- **State Management**: Zustand
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🏁 Getting Started
 
-## Deploy on Vercel
+### Prerequisites
+- Node.js 20+
+- npm / pnpm / yarn
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/supabase-rls-policy.git
+   cd supabase-rls-policy
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 🤝 Contributing
+
+Contributions are welcome! Whether it's adding support for more SQL operators, improving the UI, or fixing bugs, feel free to open an issue or a PR.
+
+## 📜 License
+
+MIT © [Femi Sowemimo](https://github.com/femisowemimo)
+

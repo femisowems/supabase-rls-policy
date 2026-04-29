@@ -1,6 +1,12 @@
 {
-  "name": "supabase-rls-policy",
-  "version": "0.1.0",
+  "name": "supabase-rls-simulator",
+  "version": "1.0.0",
+  "description": "A visual simulator and debugger for Supabase Row Level Security (RLS) policies.",
+  "author": "Femi Sowemimo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/femisowemimo/supabase-rls-policy.git"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
