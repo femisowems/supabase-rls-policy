@@ -107,6 +107,93 @@ ON profiles
 FOR SELECT
 USING ((auth.jwt() ->> 'org_id') = organization_id);`,
   },
+  {
+    name: "Owner or Admin",
+    category: "Row-based",
+    policy: `CREATE POLICY "Owners or admins can read"
+ON profiles
+FOR SELECT
+USING (auth.uid() = user_id OR auth.role() = 'service_role');`,
+  },
+  {
+    name: "Tenant Read Access",
+    category: "Tenant Isolation",
+    policy: `CREATE POLICY "Users can read their tenant records"
+ON invoices
+FOR SELECT
+USING ((auth.jwt() ->> 'org_id') = organization_id);`,
+  },
+  {
+    name: "Tenant Write Access",
+    category: "Tenant Isolation",
+    policy: `CREATE POLICY "Users can modify their tenant records"
+ON invoices
+FOR UPDATE
+USING ((auth.jwt() ->> 'org_id') = organization_id)
+WITH CHECK ((auth.jwt() ->> 'org_id') = organization_id);`,
+  },
+  {
+    name: "Public Read, Private Write",
+    category: "Auth-based",
+    policy: `CREATE POLICY "Anyone can read, authenticated users can write"
+ON posts
+FOR SELECT
+USING (true);
+
+CREATE POLICY "Only authenticated users can insert"
+ON posts
+FOR INSERT
+WITH CHECK (auth.role() = 'authenticated');`,
+  },
+  {
+    name: "Soft Delete Hidden",
+    category: "Row-based",
+    policy: `CREATE POLICY "Hide soft deleted rows"
+ON posts
+FOR SELECT
+USING (deleted_at IS NULL OR auth.role() = 'service_role');`,
+  },
+  {
+    name: "Email Match",
+    category: "Column Match",
+    policy: `CREATE POLICY "Users can access records matching email"
+ON subscriptions
+FOR SELECT
+USING (email = auth.email());`,
+  },
+  {
+    name: "Department Scope",
+    category: "Column Match",
+    policy: `CREATE POLICY "Users can access their department"
+ON tickets
+FOR SELECT
+USING (department_id = (auth.jwt() ->> 'department_id'));`,
+  },
+  {
+    name: "Verified Email Only",
+    category: "Auth-based",
+    policy: `CREATE POLICY "Only verified users may read"
+ON profiles
+FOR SELECT
+USING ((auth.jwt() ->> 'email_verified') = 'true');`,
+  },
+  {
+    name: "Service Role Write",
+    category: "Role-based",
+    policy: `CREATE POLICY "Only the service role may write"
+ON audit_logs
+FOR INSERT
+WITH CHECK (auth.role() = 'service_role');`,
+  },
+  {
+    name: "Creator Can Update",
+    category: "Row-based",
+    policy: `CREATE POLICY "Creators can update their own records"
+ON documents
+FOR UPDATE
+USING (auth.uid() = created_by)
+WITH CHECK (auth.uid() = created_by);`,
+  },
 ];
 
 const DEFAULT_POLICY = PRESET_EXAMPLES[0].policy;

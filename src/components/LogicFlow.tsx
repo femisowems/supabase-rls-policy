@@ -99,6 +99,18 @@ function layoutTree(tree: LogicTreeNode) {
   };
 
   walk(tree, 0, 0);
+
+  if (nodes.length > 0) {
+    const xs = nodes.map((node) => node.position.x);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const centerX = (minX + maxX) / 2;
+
+    nodes.forEach((node) => {
+      node.position.x -= centerX;
+    });
+  }
+
   return { nodes, edges };
 }
 
@@ -135,7 +147,9 @@ export function LogicFlow({ tree }: LogicFlowProps) {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
+          fitViewOptions={{ padding: 0.35 }}
           minZoom={0.3}
+          maxZoom={1.2}
         >
           <Background color="rgba(148, 163, 184, 0.35)" gap={18} />
           <Controls />
