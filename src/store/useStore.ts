@@ -54,6 +54,13 @@ export interface HistoryItem {
   rowData: Record<string, unknown>;
 }
 
+export interface Persona {
+  name: string;
+  icon: string;
+  description: string;
+  context: UserContext;
+}
+
 interface RLSStore {
   policy: string;
   schema: TableSchema;
@@ -61,7 +68,7 @@ interface RLSStore {
   userContext: UserContext;
   simulationResult: SimulationResult | null;
   history: HistoryItem[];
-  personas: typeof PERSONAS;
+  personas: Persona[];
   
   setPolicy: (policy: string) => void;
   setSchema: (schema: TableSchema) => void;
@@ -73,8 +80,8 @@ interface RLSStore {
   reset: () => void;
   serialize: () => string;
   deserialize: (data: string) => void;
-  addPersona: (persona: (typeof PERSONAS)[0]) => void;
-  updatePersona: (name: string, persona: Partial<(typeof PERSONAS)[0]>) => void;
+  addPersona: (persona: Persona) => void;
+  updatePersona: (name: string, persona: Partial<Persona>) => void;
   deletePersona: (name: string) => void;
   
   // UI State
@@ -248,7 +255,7 @@ const DEFAULT_USER_CONTEXT: UserContext = {
   }
 };
 
-export const PERSONAS = [
+export const PERSONAS: Persona[] = [
   {
     name: 'Owner',
     icon: 'User',
