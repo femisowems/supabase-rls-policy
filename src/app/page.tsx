@@ -10,6 +10,7 @@ import { UrlStateSync } from '@/components/UrlStateSync';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { HistorySidebar } from '@/components/HistorySidebar';
 import { ShortcutsDialog } from '@/components/ShortcutsDialog';
+import { WelcomeDialog } from '@/components/WelcomeDialog';
 import { ShieldCheck, Zap, RefreshCw, Link2, Check, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
@@ -250,6 +251,7 @@ export default function Home() {
         </div>
       </footer>
       <ShortcutsDialog />
+      <WelcomeDialog />
     </div>
   );
 }
