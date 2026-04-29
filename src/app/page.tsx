@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { PolicyEditor } from '@/components/PolicyEditor';
 import { SchemaInput } from '@/components/SchemaInput';
 import { UserSimulator } from '@/components/UserSimulator';
+import { ExplanationPanel } from '@/components/ExplanationPanel';
 import { SimulationDashboard } from '@/components/SimulationDashboard';
 import { UrlStateSync } from '@/components/UrlStateSync';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -154,6 +155,10 @@ export default function Home() {
                         </div>
                       </div>
                     </TabsContent>
+
+                    <div className="pt-2">
+                      <ExplanationPanel />
+                    </div>
                   </div>
                 </ScrollArea>
               </Tabs>

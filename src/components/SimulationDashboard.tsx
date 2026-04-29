@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
 import { useStore } from '@/store/useStore';
-import { evaluatePolicy, generateExplanation } from '@/lib/engine';
+import { evaluatePolicy } from '@/lib/engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,8 +46,6 @@ export function SimulationDashboard() {
   useEffect(() => {
     void runSimulation();
   }, [runSimulation]);
-
-  const explanation = simulationResult ? generateExplanation(simulationResult, "Policy") : [];
 
   return (
     <div className="space-y-6">
@@ -194,49 +192,6 @@ export function SimulationDashboard() {
         )}
       </Card>
 
-      <Card className="border-muted shadow-sm overflow-hidden bg-primary/5 dark:bg-primary/10">
-        <CardHeader className="py-3 px-4 border-b bg-primary/10 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-primary/20 transition-colors" onClick={() => toggleSection('explanation')}>
-          <div className="flex items-center gap-2">
-            <MessageSquareText className="w-4 h-4 text-primary" />
-            <CardTitle className="text-sm font-medium">Why is this happening?</CardTitle>
-          </div>
-          {expandedSections.explanation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </CardHeader>
-        {expandedSections.explanation && (
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {explanation.length > 0 ? (
-              explanation.map((insight, idx) => (
-                <motion.div 
-                  key={idx}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${
-                    insight.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-800 dark:text-emerald-300' :
-                    insight.type === 'failure' ? 'bg-rose-500/5 border-rose-500/20 text-rose-800 dark:text-rose-300' :
-                    insight.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20 text-amber-800 dark:text-amber-300' :
-                    'bg-blue-500/5 border-blue-500/20 text-blue-800 dark:text-blue-300'
-                  }`}
-                >
-                  <div className="mt-0.5">
-                    {insight.type === 'success' && <CheckCircle2 className="w-4 h-4" />}
-                    {insight.type === 'failure' && <XCircle className="w-4 h-4" />}
-                    {insight.type === 'warning' && <Info className="w-4 h-4" />}
-                    {insight.type === 'info' && <MessageSquareText className="w-4 h-4" />}
-                  </div>
-                  <p className="leading-relaxed font-medium">{insight.message}</p>
-                </motion.div>
-              ))
-            ) : (
-              <p className="text-sm italic text-muted-foreground text-center py-4">
-                Configure your policy and user state to see a detailed explanation.
-              </p>
-            )}
-          </div>
-        </CardContent>
-        )}
-      </Card>
     </div>
   );
 }
