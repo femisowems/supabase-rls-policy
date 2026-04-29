@@ -31,6 +31,22 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isCtrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+
+      if (isCtrlOrCmd && e.key === 's') {
+        e.preventDefault();
+        void copyShareLink();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const copyShareLink = async () => {
     const encoded = serialize();
     await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}#${encoded}`);

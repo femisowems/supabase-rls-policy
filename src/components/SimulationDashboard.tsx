@@ -6,7 +6,7 @@ import { evaluatePolicy, generateExplanation } from '@/lib/engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText, Users, Database } from 'lucide-react';
+import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText, Users, Database, ChevronDown, ChevronUp } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogicFlow } from '@/components/LogicFlow';
@@ -21,6 +21,15 @@ export function SimulationDashboard() {
     saveToHistory
   } = useStore();
   const [isRunning, setIsRunning] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    results: true,
+    logic: true,
+    explanation: true
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const runSimulation = useCallback(async () => {
     setIsRunning(true);
@@ -43,16 +52,20 @@ export function SimulationDashboard() {
   return (
     <div className="space-y-6">
       <Card className="border-muted shadow-lg overflow-hidden">
-        <CardHeader className="py-4 px-6 border-b bg-muted/10 flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="py-4 px-6 border-b bg-muted/10 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/20 transition-colors" onClick={() => toggleSection('results')}>
           <div className="flex items-center gap-2">
             <Calculator className="w-5 h-5 text-primary" />
             <CardTitle className="text-base font-semibold">Simulation Results</CardTitle>
           </div>
-          <Button size="sm" onClick={() => void runSimulation()} className="gap-2 px-4" disabled={isRunning}>
-            <Play className="w-3.5 h-3.5 fill-current" />
-            {isRunning ? 'Running...' : 'Run Check'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={(e) => { e.stopPropagation(); void runSimulation(); }} className="gap-2 px-4" disabled={isRunning}>
+              <Play className="w-3.5 h-3.5 fill-current" />
+              {isRunning ? 'Running...' : 'Run Check'}
+            </Button>
+            {expandedSections.results ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
         </CardHeader>
+        {expandedSections.results && (
         <CardContent className="p-6">
           {simulationResult?.parseError && (
             <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
@@ -163,23 +176,33 @@ export function SimulationDashboard() {
             )}
           </AnimatePresence>
         </CardContent>
+        )}
       </Card>
 
       <Card className="border-muted shadow-sm overflow-hidden">
-        <CardHeader className="py-3 px-4 border-b bg-muted/20 flex flex-row items-center gap-2 space-y-0">
-          <MessageSquareText className="w-4 h-4 text-primary" />
-          <CardTitle className="text-sm font-medium">Logic Flow</CardTitle>
+        <CardHeader className="py-3 px-4 border-b bg-muted/20 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => toggleSection('logic')}>
+          <div className="flex items-center gap-2">
+            <MessageSquareText className="w-4 h-4 text-primary" />
+            <CardTitle className="text-sm font-medium">Logic Flow</CardTitle>
+          </div>
+          {expandedSections.logic ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </CardHeader>
+        {expandedSections.logic && (
         <CardContent className="p-4">
           <LogicFlow tree={simulationResult?.logicTree} />
         </CardContent>
+        )}
       </Card>
 
       <Card className="border-muted shadow-sm overflow-hidden bg-primary/5 dark:bg-primary/10">
-        <CardHeader className="py-3 px-4 border-b bg-primary/10 flex flex-row items-center gap-2 space-y-0">
-          <MessageSquareText className="w-4 h-4 text-primary" />
-          <CardTitle className="text-sm font-medium">Why is this happening?</CardTitle>
+        <CardHeader className="py-3 px-4 border-b bg-primary/10 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-primary/20 transition-colors" onClick={() => toggleSection('explanation')}>
+          <div className="flex items-center gap-2">
+            <MessageSquareText className="w-4 h-4 text-primary" />
+            <CardTitle className="text-sm font-medium">Why is this happening?</CardTitle>
+          </div>
+          {expandedSections.explanation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </CardHeader>
+        {expandedSections.explanation && (
         <CardContent className="p-4">
           <div className="space-y-3">
             {explanation.length > 0 ? (
@@ -212,6 +235,7 @@ export function SimulationDashboard() {
             )}
           </div>
         </CardContent>
+        )}
       </Card>
     </div>
   );

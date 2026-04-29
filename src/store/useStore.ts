@@ -77,6 +77,7 @@ interface RLSStore {
 export const PRESET_EXAMPLES = [
   {
     name: "Own Data Only",
+    category: "Row-based",
     policy: `CREATE POLICY "Users can view own data"
 ON profiles
 FOR SELECT
@@ -84,6 +85,7 @@ USING (auth.uid() = user_id);`,
   },
   {
     name: "Authenticated Only",
+    category: "Auth-based",
     policy: `CREATE POLICY "Public profiles are viewable by everyone"
 ON profiles
 FOR SELECT
@@ -91,6 +93,7 @@ USING (auth.role() = 'authenticated');`,
   },
   {
     name: "Admin Bypass",
+    category: "Auth-based",
     policy: `CREATE POLICY "Admins can do anything"
 ON profiles
 FOR ALL
@@ -98,6 +101,7 @@ USING (auth.role() = 'service_role');`,
   },
   {
     name: "JWT Claim Check",
+    category: "JWT Claims",
     policy: `CREATE POLICY "Check tenant access"
 ON profiles
 FOR SELECT

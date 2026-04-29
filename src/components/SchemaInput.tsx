@@ -1,16 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '@/store/useStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Database, Table } from 'lucide-react';
+import { Database, Table, ChevronDown, ChevronUp } from 'lucide-react';
 import { RowDataEditor } from './RowDataEditor';
 
 export function SchemaInput() {
   const { schema, setSchema } = useStore();
+  const [expandedSections, setExpandedSections] = useState({
+    rowData: true
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   return (
     <Card className="border-muted shadow-sm overflow-hidden">
@@ -34,11 +41,19 @@ export function SchemaInput() {
           </div>
         </div>
 
-        <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-            Sample Row Data
-          </Label>
+        <div className="space-y-3 border-t pt-4">
+          <div 
+            className="flex items-center justify-between cursor-pointer hover:bg-muted/30 -mx-2 px-2 py-1 rounded transition-colors"
+            onClick={() => toggleSection('rowData')}
+          >
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold cursor-pointer">
+              Sample Row Data
+            </Label>
+            {expandedSections.rowData ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </div>
+          {expandedSections.rowData && (
           <RowDataEditor />
+          )}
         </div>
       </CardContent>
     </Card>

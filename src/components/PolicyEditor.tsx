@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore, PRESET_EXAMPLES } from '@/store/useStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Code2, Copy, RotateCcw, ChevronDown } from 'lucide-react';
+import { Code2, Copy, RotateCcw, ChevronDown, Search } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Editor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
 import {
@@ -12,15 +13,39 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+
+type PresetExample = (typeof PRESET_EXAMPLES)[number];
 
 export function PolicyEditor() {
   const { policy, setPolicy, reset } = useStore();
   const { theme } = useTheme();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(policy);
   };
+
+  // Group presets by category and filter
+  const groupedPresets = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const filtered = PRESET_EXAMPLES.filter((ex) => 
+      ex.name.toLowerCase().includes(query) ||
+      ex.category.toLowerCase().includes(query)
+    );
+    
+    const grouped: Record<string, PresetExample[]> = {};
+    filtered.forEach((ex) => {
+      if (!grouped[ex.category]) {
+        grouped[ex.category] = [];
+      }
+      grouped[ex.category].push(ex);
+    });
+    return grouped;
+  }, [searchQuery]);
 
   return (
     <Card className="border-muted shadow-sm overflow-hidden">
@@ -37,12 +62,44 @@ export function PolicyEditor() {
               Presets
               <ChevronDown className="w-3 h-3" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              {PRESET_EXAMPLES.map((ex) => (
-                <DropdownMenuItem key={ex.name} onClick={() => setPolicy(ex.policy)}>
-                  {ex.name}
-                </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-60">
+              <div className="p-2 border-b">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search presets..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 h-7 text-xs"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              {Object.entries(groupedPresets).map(([category, presets], idx) => (
+                <DropdownMenuGroup key={category}>
+                  {idx > 0 && <DropdownMenuSeparator />}
+                  <DropdownMenuLabel className="text-[10px] font-semibold text-muted-foreground px-2 py-1.5">
+                    {category}
+                  </DropdownMenuLabel>
+                  {presets.map((ex) => (
+                    <DropdownMenuItem 
+                      key={ex.name} 
+                      onClick={() => {
+                        setPolicy(ex.policy);
+                        setSearchQuery('');
+                      }}
+                      className="text-xs cursor-pointer"
+                    >
+                      {ex.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
               ))}
+              {Object.keys(groupedPresets).length === 0 && (
+                <div className="px-2 py-4 text-xs text-muted-foreground text-center">
+                  No presets found
+                </div>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           <div className="h-4 w-px bg-border mx-1" />
@@ -55,7 +112,7 @@ export function PolicyEditor() {
         </div>
       </CardHeader>
       <CardContent className="p-0 border-t">
-        <div className="h-[300px] w-full overflow-hidden">
+        <div className="h-75 w-full overflow-hidden">
           <Editor
             height="100%"
             defaultLanguage="sql"
