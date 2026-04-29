@@ -11,7 +11,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { HistorySidebar } from '@/components/HistorySidebar';
 import { ShortcutsDialog } from '@/components/ShortcutsDialog';
 import { WelcomeDialog } from '@/components/WelcomeDialog';
-import { ShieldCheck, Zap, RefreshCw, Link2, Check, HelpCircle } from 'lucide-react';
+import { ShieldCheck, Zap, RefreshCw, Link2, Check, HelpCircle, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -87,6 +87,26 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col selection:bg-primary/20">
+      {/* Mobile gate — visible only below md breakpoint */}
+      <div className="md:hidden fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center text-center px-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.12),transparent_65%)] pointer-events-none" />
+        <div className="relative flex flex-col items-center gap-6 max-w-xs">
+          <div className="p-5 bg-primary/10 border border-primary/20 rounded-3xl">
+            <Monitor className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-2xl font-bold tracking-tight">Desktop Required</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The Supabase RLS Simulator is a professional developer tool designed for
+              desktop use. Please open it on a larger screen to get the full experience.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted border text-xs text-muted-foreground font-medium">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Optimised for screens ≥ 768 px
+          </div>
+        </div>
+      </div>
       <UrlStateSync />
       {/* Top Bar */}
       <header className="h-12 sm:h-14 border-b flex items-center justify-between px-3 sm:px-6 bg-background/80 backdrop-blur-md sticky top-0 z-50">
