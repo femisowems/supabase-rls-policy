@@ -6,7 +6,7 @@ import { evaluatePolicy, generateExplanation } from '@/lib/engine';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText } from 'lucide-react';
+import { CheckCircle2, XCircle, Play, Info, Calculator, MessageSquareText, Users, Database } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogicFlow } from '@/components/LogicFlow';
@@ -17,7 +17,8 @@ export function SimulationDashboard() {
     userContext, 
     rowData, 
     simulationResult, 
-    setSimulationResult 
+    setSimulationResult,
+    saveToHistory
   } = useStore();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -26,10 +27,11 @@ export function SimulationDashboard() {
     try {
       const result = await evaluatePolicy(policy, userContext, rowData);
       setSimulationResult(result);
+      saveToHistory();
     } finally {
       setIsRunning(false);
     }
-  }, [policy, userContext, rowData, setSimulationResult]);
+  }, [policy, userContext, rowData, setSimulationResult, saveToHistory]);
 
   // Run automatically on change for "instant feedback" feel
   useEffect(() => {
@@ -105,23 +107,55 @@ export function SimulationDashboard() {
                   <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
                     Evaluated Expression
                   </h4>
-                  <div className="p-4 bg-muted/40 rounded-lg font-mono text-sm border border-muted/50 break-all leading-relaxed">
-                    {simulationResult.evaluatedExpression}
+                  <div className="group relative">
+                    <div className="p-4 bg-muted/40 rounded-lg font-mono text-sm border border-muted/50 break-all leading-relaxed transition-colors group-hover:border-primary/30">
+                      {simulationResult.evaluatedExpression}
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                      Variables Used
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                      <Users className="w-3 h-3" />
+                      Session Variables
                     </h4>
-                    <div className="space-y-1">
-                      {Object.entries(simulationResult.evaluatedValues).map(([key, val]) => (
-                        <div key={key} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/30 transition-colors">
-                          <code className="text-primary">{key}</code>
-                          <code className="bg-muted px-1.5 py-0.5 rounded text-muted-foreground">{String(val)}</code>
+                    <div className="space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
+                      {Object.entries(simulationResult.evaluatedValues)
+                        .filter(([key]) => key.startsWith('auth.'))
+                        .map(([key, val]) => (
+                        <div key={key} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/50 transition-colors group">
+                          <code className="text-primary font-bold">{key}</code>
+                          <Badge variant="outline" className="font-mono text-[10px] bg-background">
+                            {JSON.stringify(val)}
+                          </Badge>
                         </div>
                       ))}
+                      {Object.keys(simulationResult.evaluatedValues).filter(k => k.startsWith('auth.')).length === 0 && (
+                        <div className="text-[10px] text-muted-foreground italic p-1.5">No auth variables used.</div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                      <Database className="w-3 h-3" />
+                      Row Columns
+                    </h4>
+                    <div className="space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
+                      {Object.entries(simulationResult.evaluatedValues)
+                        .filter(([key]) => !key.startsWith('auth.'))
+                        .map(([key, val]) => (
+                        <div key={key} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/50 transition-colors group">
+                          <code className="text-emerald-600 dark:text-emerald-400 font-bold">{key}</code>
+                          <Badge variant="outline" className="font-mono text-[10px] bg-background">
+                            {JSON.stringify(val)}
+                          </Badge>
+                        </div>
+                      ))}
+                      {Object.keys(simulationResult.evaluatedValues).filter(k => !k.startsWith('auth.')).length === 0 && (
+                        <div className="text-[10px] text-muted-foreground italic p-1.5">No row columns accessed.</div>
+                      )}
                     </div>
                   </div>
                 </div>

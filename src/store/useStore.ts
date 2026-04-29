@@ -47,18 +47,28 @@ export interface LogicTreeNode {
   children: LogicTreeNode[];
 }
 
+export interface HistoryItem {
+  timestamp: number;
+  policy: string;
+  userContext: UserContext;
+  rowData: Record<string, unknown>;
+}
+
 interface RLSStore {
   policy: string;
   schema: TableSchema;
   rowData: Record<string, unknown>;
   userContext: UserContext;
   simulationResult: SimulationResult | null;
+  history: HistoryItem[];
   
   setPolicy: (policy: string) => void;
   setSchema: (schema: TableSchema) => void;
   setRowData: (data: Record<string, unknown>) => void;
   setUserContext: (context: Partial<UserContext>) => void;
   setSimulationResult: (result: SimulationResult | null) => void;
+  saveToHistory: () => void;
+  restoreHistory: (item: HistoryItem) => void;
   reset: () => void;
   serialize: () => string;
   deserialize: (data: string) => void;
@@ -121,12 +131,71 @@ const DEFAULT_USER_CONTEXT: UserContext = {
   }
 };
 
+export const PERSONAS = [
+  {
+    name: 'Owner',
+    icon: 'User',
+    description: 'The user who owns the record',
+    context: {
+      role: 'authenticated' as UserRole,
+      uid: 'user_123',
+      claims: {},
+      jwt: { org_id: 'org_789', role: 'authenticated' }
+    }
+  },
+  {
+    name: 'Team Member',
+    icon: 'Users',
+    description: 'Member of the same organization',
+    context: {
+      role: 'authenticated' as UserRole,
+      uid: 'user_456',
+      claims: {},
+      jwt: { org_id: 'org_789', role: 'authenticated' }
+    }
+  },
+  {
+    name: 'Stranger',
+    icon: 'Ghost',
+    description: 'Authenticated user from a different org',
+    context: {
+      role: 'authenticated' as UserRole,
+      uid: 'user_999',
+      claims: {},
+      jwt: { org_id: 'org_000', role: 'authenticated' }
+    }
+  },
+  {
+    name: 'Anonymous',
+    icon: 'EyeOff',
+    description: 'Public unauthenticated visitor',
+    context: {
+      role: 'anon' as UserRole,
+      uid: null,
+      claims: {},
+      jwt: {}
+    }
+  },
+  {
+    name: 'Admin',
+    icon: 'ShieldCheck',
+    description: 'System administrator (bypass)',
+    context: {
+      role: 'service_role' as UserRole,
+      uid: 'admin_god',
+      claims: {},
+      jwt: { role: 'service_role' }
+    }
+  }
+];
+
 export const useStore = create<RLSStore>((set, get) => ({
   policy: DEFAULT_POLICY,
   schema: DEFAULT_SCHEMA,
   rowData: DEFAULT_ROW_DATA,
   userContext: DEFAULT_USER_CONTEXT,
   simulationResult: null,
+  history: [],
 
   setPolicy: (policy) => set({ policy }),
   setSchema: (schema) => set({ schema }),
@@ -135,6 +204,32 @@ export const useStore = create<RLSStore>((set, get) => ({
     userContext: { ...state.userContext, ...context } 
   })),
   setSimulationResult: (simulationResult) => set({ simulationResult }),
+  
+  saveToHistory: () => {
+    const { policy, userContext, rowData, history } = get();
+    const newItem: HistoryItem = {
+      timestamp: Date.now(),
+      policy,
+      userContext,
+      rowData: { ...rowData }
+    };
+    
+    // Only save if different from last history item
+    const last = history[0];
+    if (last && last.policy === policy && JSON.stringify(last.userContext) === JSON.stringify(userContext)) {
+      return;
+    }
+    
+    set({ history: [newItem, ...history].slice(0, 50) });
+  },
+
+  restoreHistory: (item) => {
+    set({
+      policy: item.policy,
+      userContext: item.userContext,
+      rowData: item.rowData
+    });
+  },
   reset: () => {
     set({
       policy: DEFAULT_POLICY,

@@ -7,6 +7,7 @@ import { UserSimulator } from '@/components/UserSimulator';
 import { SimulationDashboard } from '@/components/SimulationDashboard';
 import { UrlStateSync } from '@/components/UrlStateSync';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { HistorySidebar } from '@/components/HistorySidebar';
 import { ShieldCheck, Zap, RefreshCw, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
@@ -37,6 +38,7 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-2">
+          <HistorySidebar />
           <Button variant="outline" size="sm" onClick={() => void copyShareLink()} className="gap-2 text-xs h-9">
             <Link2 className="w-3 h-3" />
             Copy Link

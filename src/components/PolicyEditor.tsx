@@ -3,9 +3,10 @@
 import React from 'react';
 import { useStore, PRESET_EXAMPLES } from '@/store/useStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Code2, Copy, RotateCcw, ChevronDown } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Editor } from '@monaco-editor/react';
+import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 
 export function PolicyEditor() {
   const { policy, setPolicy, reset } = useStore();
+  const { theme } = useTheme();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(policy);
@@ -52,13 +54,27 @@ export function PolicyEditor() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <Textarea
-          value={policy}
-          onChange={(e) => setPolicy(e.target.value)}
-          className="min-h-[200px] font-mono text-sm border-0 focus-visible:ring-0 resize-none p-4 bg-background/50"
-          placeholder="CREATE POLICY..."
-        />
+      <CardContent className="p-0 border-t">
+        <div className="h-[300px] w-full overflow-hidden">
+          <Editor
+            height="100%"
+            defaultLanguage="sql"
+            value={policy}
+            theme={theme === 'dark' ? 'vs-dark' : 'light'}
+            onChange={(value) => setPolicy(value || '')}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 13,
+              fontFamily: 'var(--font-geist-mono)',
+              lineNumbers: 'on',
+              roundedSelection: false,
+              scrollBeyondLastLine: false,
+              readOnly: false,
+              automaticLayout: true,
+              padding: { top: 16, bottom: 16 },
+            }}
+          />
+        </div>
       </CardContent>
     </Card>
   );

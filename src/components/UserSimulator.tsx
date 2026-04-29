@@ -1,14 +1,24 @@
 'use client';
 
 import React from 'react';
-import { useStore, UserRole } from '@/store/useStore';
+import { useStore, UserRole, PERSONAS } from '@/store/useStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, User, Shield, Ghost } from 'lucide-react';
+import { Users, User, Shield, Ghost, ShieldCheck, EyeOff } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+
+const iconMap: Record<string, any> = {
+  User,
+  Users,
+  Ghost,
+  ShieldCheck,
+  EyeOff
+};
 
 export function UserSimulator() {
   const { userContext, setUserContext } = useStore();
@@ -20,6 +30,37 @@ export function UserSimulator() {
         <CardTitle className="text-sm font-medium">User Simulator</CardTitle>
       </CardHeader>
       <CardContent className="p-4 space-y-6">
+        <div className="space-y-3">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Quick Personas
+          </Label>
+          <ScrollArea className="w-full whitespace-nowrap rounded-md pb-2">
+            <div className="flex gap-2 w-max">
+              {PERSONAS.map((persona) => {
+                const Icon = iconMap[persona.icon] || User;
+                const isActive = userContext.role === persona.context.role && userContext.uid === persona.context.uid;
+                
+                return (
+                  <Button
+                    key={persona.name}
+                    variant={isActive ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-auto py-2 px-3 flex flex-col items-center gap-1 min-w-[90px]"
+                    onClick={() => setUserContext(persona.context)}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-bold">{persona.name}</span>
+                      <span className="text-[8px] opacity-60 font-normal leading-none">{persona.description.split(' ')[0]}...</span>
+                    </div>
+                  </Button>
+                );
+              })}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+
         <div className="space-y-3">
           <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Auth State

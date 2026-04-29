@@ -7,18 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Database, Table } from 'lucide-react';
+import { RowDataEditor } from './RowDataEditor';
 
 export function SchemaInput() {
-  const { schema, setSchema, rowData, setRowData } = useStore();
-
-  const handleRowDataChange = (val: string) => {
-    try {
-      const parsed = JSON.parse(val);
-      setRowData(parsed);
-    } catch (_e) {
-      // Keep typing allowed even if JSON is invalid momentarily
-    }
-  };
+  const { schema, setSchema } = useStore();
 
   return (
     <Card className="border-muted shadow-sm overflow-hidden">
@@ -26,7 +18,7 @@ export function SchemaInput() {
         <Database className="w-4 h-4 text-primary" />
         <CardTitle className="text-sm font-medium">Schema & Mock Data</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-4 space-y-6">
         <div className="space-y-2">
           <Label htmlFor="table-name" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Table Name
@@ -42,16 +34,11 @@ export function SchemaInput() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="row-data" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-            Sample Row (JSON)
+        <div className="space-y-3">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Sample Row Data
           </Label>
-          <Textarea
-            id="row-data"
-            value={JSON.stringify(rowData, null, 2)}
-            onChange={(e) => handleRowDataChange(e.target.value)}
-            className="font-mono text-sm min-h-[150px] bg-background/50"
-          />
+          <RowDataEditor />
         </div>
       </CardContent>
     </Card>
