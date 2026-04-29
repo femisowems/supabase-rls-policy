@@ -38,7 +38,7 @@ export function SimulationDashboard() {
     void runSimulation();
   }, [runSimulation]);
 
-  const explanation = simulationResult ? generateExplanation(simulationResult, "Policy") : "";
+  const explanation = simulationResult ? generateExplanation(simulationResult, "Policy") : [];
 
   return (
     <div className="space-y-6">
@@ -181,9 +181,36 @@ export function SimulationDashboard() {
           <CardTitle className="text-sm font-medium">Why is this happening?</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <p className="text-sm leading-relaxed text-foreground/90">
-            {explanation || "Configure your policy and user state to see a natural language explanation."}
-          </p>
+          <div className="space-y-3">
+            {explanation.length > 0 ? (
+              explanation.map((insight, idx) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${
+                    insight.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-800 dark:text-emerald-300' :
+                    insight.type === 'failure' ? 'bg-rose-500/5 border-rose-500/20 text-rose-800 dark:text-rose-300' :
+                    insight.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20 text-amber-800 dark:text-amber-300' :
+                    'bg-blue-500/5 border-blue-500/20 text-blue-800 dark:text-blue-300'
+                  }`}
+                >
+                  <div className="mt-0.5">
+                    {insight.type === 'success' && <CheckCircle2 className="w-4 h-4" />}
+                    {insight.type === 'failure' && <XCircle className="w-4 h-4" />}
+                    {insight.type === 'warning' && <Info className="w-4 h-4" />}
+                    {insight.type === 'info' && <MessageSquareText className="w-4 h-4" />}
+                  </div>
+                  <p className="leading-relaxed font-medium">{insight.message}</p>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-sm italic text-muted-foreground text-center py-4">
+                Configure your policy and user state to see a detailed explanation.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

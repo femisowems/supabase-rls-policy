@@ -28,17 +28,19 @@ export function HistorySidebar() {
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <History className="w-4 h-4" />
-          <span className="hidden sm:inline">History</span>
-          {history.length > 0 && (
-            <Badge variant="secondary" className="ml-1 px-1 h-4 min-w-[16px] flex items-center justify-center text-[10px]">
-              {history.length}
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>
+      <SheetTrigger
+        render={
+          <Button variant="outline" size="sm" className="gap-2">
+            <History className="w-4 h-4" />
+            <span className="hidden sm:inline">History</span>
+            {history.length > 0 && (
+              <Badge variant="secondary" className="ml-1 px-1 h-4 min-w-[16px] flex items-center justify-center text-[10px]">
+                {history.length}
+              </Badge>
+            )}
+          </Button>
+        }
+      />
       <SheetContent side="right" className="w-[350px] sm:w-[450px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">

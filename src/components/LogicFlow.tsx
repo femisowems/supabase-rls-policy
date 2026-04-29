@@ -64,6 +64,8 @@ const nodeTypes = {
   logic: CustomNode,
 };
 
+const edgeTypes = {};
+
 function layoutTree(tree: LogicTreeNode) {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
@@ -131,6 +133,7 @@ export function LogicFlow({ tree }: LogicFlowProps) {
           onEdgesChange={onEdgesChange}
           onNodeClick={onNodeClick}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView
           minZoom={0.3}
         >

@@ -480,35 +480,102 @@ export async function evaluatePolicy(
   };
 }
 
-export function generateExplanation(result: SimulationResult, policyName: string): string {
-  if (!result) return '';
+export type ExplanationInsight = {
+  type: 'success' | 'failure' | 'info' | 'warning';
+  message: string;
+};
 
-  const { allowed, evaluatedValues, parseError } = result;
+export function generateExplanation(result: SimulationResult, policyName: string): ExplanationInsight[] {
+  if (!result) return [];
 
-  let explanation = allowed
-    ? `The policy "${policyName}" permits access because the conditions are met. `
-    : `The policy "${policyName}" blocks access because the conditions are not met. `;
+  const { allowed, evaluatedValues, logicTree, parseError } = result;
+  const insights: ExplanationInsight[] = [];
 
+  // 1. Overall Status with Definition
+  insights.push({
+    type: allowed ? 'success' : 'failure',
+    message: allowed 
+      ? `ACCESS GRANTED: The policy "${policyName}" permits this operation because all security conditions were satisfied.` 
+      : `ACCESS DENIED: The policy "${policyName}" blocked this operation. In Supabase RLS, if the USING expression evaluates to false or null, the row is hidden from the user.`
+  });
+
+  insights.push({
+    type: 'info',
+    message: 'RLS CONCEPT: The "USING" expression in a policy acts like a filter. For every row accessed, PostgreSQL evaluates this expression; if it returns true, the row is processed. If it returns false or null, the row is ignored.'
+  });
+
+  // 2. Variable Definitions & Context
   if (evaluatedValues['auth.uid()'] !== undefined) {
-    explanation += `The authenticated user's ID (${evaluatedValues['auth.uid()']}) was compared. `;
+    insights.push({
+      type: 'info',
+      message: `auth.uid() resolved to "${evaluatedValues['auth.uid()']}". This function returns the ID of the user making the request, extracted from their JWT.`
+    });
   }
 
   if (evaluatedValues['auth.role()'] !== undefined) {
-    explanation += `The role check resolved to "${evaluatedValues['auth.role()']}". `;
+    const role = evaluatedValues['auth.role()'];
+    let roleDesc = `The request is identified as "${role}".`;
+    if (role === 'authenticated') roleDesc += " This is the default role for logged-in users.";
+    if (role === 'anon') roleDesc += " This is the default role for unauthenticated public visitors.";
+    if (role === 'service_role') roleDesc += " WARNING: This is an admin role that typically bypasses all RLS policies entirely.";
+    
+    insights.push({
+      type: 'info',
+      message: roleDesc
+    });
   }
 
-  const jwtValue = evaluatedValues['auth.jwt()'];
-  if (jwtValue !== undefined) {
-    explanation += `JWT claims were loaded for the comparison. `;
+  // 3. Specific Logic Analysis with Explanations
+  if (logicTree) {
+    const walkForFailures = (node: LogicTreeNode) => {
+      if (node.outcome === false) {
+        if (node.kind === 'comparison') {
+          insights.push({
+            type: 'failure',
+            message: `FAILED CHECK: "${node.label}" evaluated to false. This means the values on both sides did not match according to your logic.`
+          });
+        }
+        if (node.kind === 'logic' && node.label === 'AND') {
+          insights.push({
+            type: 'warning',
+            message: `AND BLOCK FAILED: In an "AND" condition, EVERY single sub-condition must be true. Since at least one failed, the entire block is false.`
+          });
+        }
+        if (node.kind === 'logic' && node.label === 'OR') {
+          insights.push({
+            type: 'failure',
+            message: `OR BLOCK FAILED: In an "OR" condition, at least one sub-condition must be true. Here, all conditions failed.`
+          });
+        }
+      } else if (node.outcome === true) {
+        if (node.kind === 'comparison') {
+           // Maybe only show success for critical owner checks? 
+           // For now let's keep it simple.
+        }
+      }
+      node.children.forEach(walkForFailures);
+    };
+    walkForFailures(logicTree);
   }
 
+  // 4. Parser/Support Notes
   if (parseError) {
-    explanation += `Parser note: ${parseError}. `;
+    insights.push({
+      type: 'warning',
+      message: `SIMULATION LIMITATION: ${parseError}. The simulator might not support certain complex PostgreSQL features like subqueries (SELECT) or advanced JSONB operators yet.`
+    });
   }
 
-  explanation += allowed
-    ? 'All checks passed successfully.'
-    : 'One or more conditions failed, leading to a denial.';
+  // 5. Actionable Advice
+  if (!allowed) {
+    const missingKeys = Object.keys(evaluatedValues).filter(k => evaluatedValues[k] === undefined);
+    if (missingKeys.length > 0) {
+      insights.push({
+        type: 'warning',
+        message: `DEBUG TIP: The simulator found undefined values for: ${missingKeys.join(', ')}. Ensure your "Sample Row Data" has these columns defined, or they will be treated as NULL in the comparison.`
+      });
+    }
+  }
 
-  return explanation;
+  return insights;
 }
