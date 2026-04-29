@@ -40,17 +40,17 @@ export function UserSimulator() {
 
   return (
     <Card className="border-muted shadow-sm overflow-hidden">
-      <CardHeader className="py-3 px-4 border-b bg-muted/30 flex flex-row items-center gap-2 space-y-0">
-        <Users className="w-4 h-4 text-primary" />
-        <CardTitle className="text-sm font-medium">User Simulator</CardTitle>
+      <CardHeader className="py-2.5 sm:py-3 px-3 sm:px-4 border-b bg-muted/30 flex flex-row items-center gap-1.5 sm:gap-2 space-y-0">
+        <Users className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-primary shrink-0" />
+        <CardTitle className="text-xs sm:text-sm font-medium truncate">User Simulator</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-6">
-        <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+      <CardContent className="p-3 sm:p-4 space-y-4 sm:space-y-6">
+        <div className="space-y-2 sm:space-y-3">
+          <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Quick Personas
           </Label>
-          <ScrollArea className="w-full whitespace-nowrap rounded-md pb-2">
-            <div className="flex gap-2 w-max p-1">
+          <ScrollArea className="w-full whitespace-nowrap rounded-md pb-1.5 sm:pb-2">
+            <div className="flex gap-1.5 sm:gap-2 w-max p-0.5 sm:p-1">
               {personas.map((persona) => {
                 const Icon = iconMap[persona.icon] || User;
                 const isActive = userContext.role === persona.context.role && userContext.uid === persona.context.uid;
@@ -60,13 +60,13 @@ export function UserSimulator() {
                     <Button
                       variant={isActive ? 'default' : 'outline'}
                       size="sm"
-                      className="h-auto py-2 px-3 flex flex-col items-center gap-1 min-w-[90px] relative overflow-hidden"
+                      className="h-auto py-1.5 sm:py-2 px-2 sm:px-3 flex flex-col items-center gap-0.5 sm:gap-1 min-w-[70px] sm:min-w-[90px] relative overflow-hidden text-[9px] sm:text-[10px]"
                       onClick={() => setUserContext(persona.context)}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
+                      <Icon className={`w-3 sm:w-4 h-3 sm:h-4 ${isActive ? 'text-primary-foreground' : 'text-primary'}`} />
                       <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold">{persona.name}</span>
-                        <span className="text-[8px] opacity-60 font-normal leading-none truncate max-w-[70px]">
+                        <span className="font-bold">{persona.name}</span>
+                        <span className="text-[7px] opacity-60 font-normal leading-none truncate max-w-[60px]">
                           {persona.description}
                         </span>
                       </div>
@@ -77,17 +77,17 @@ export function UserSimulator() {
                         setEditingPersona(persona);
                         setEditName(persona.name);
                       }}
-                      className="absolute -top-1 -left-1 w-5 h-5 bg-primary text-white rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center shadow-lg hover:scale-110 z-10"
+                      className="absolute -top-0.5 -left-0.5 sm:-top-1 sm:-left-1 w-4 sm:w-5 h-4 sm:h-5 bg-primary text-white rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center shadow-lg hover:scale-110 z-10"
                       title="Edit persona"
                     >
-                      <Edit2 className="w-2.5 h-2.5" />
+                      <Edit2 className="w-2 sm:w-2.5 h-2 sm:h-2.5" />
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); deletePersona(persona.name); }}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center shadow-lg hover:scale-110 z-10"
+                      className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 sm:w-5 h-4 sm:h-5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center shadow-lg hover:scale-110 z-10"
                       title="Delete persona"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-2 sm:w-3 h-2 sm:h-3" />
                     </button>
                   </div>
                 );
@@ -96,19 +96,19 @@ export function UserSimulator() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="h-full py-2 px-3 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/5 flex flex-col items-center gap-1 min-w-[90px] min-h-[54px]"
+                className="h-full py-1.5 sm:py-2 px-2 sm:px-3 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/5 flex flex-col items-center gap-0.5 sm:gap-1 min-w-[70px] sm:min-w-[90px] text-[9px] sm:text-[10px]"
                 onClick={handleSavePersona}
               >
-                <Plus className="w-4 h-4 text-primary/60" />
-                <span className="text-[10px] font-bold text-primary/60">Save Current</span>
+                <Plus className="w-3 sm:w-4 h-3 sm:h-4 text-primary/60" />
+                <span className="font-bold text-primary/60">Save</span>
               </Button>
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
 
-        <div className="space-y-3">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+        <div className="space-y-2 sm:space-y-3">
+          <Label className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">
             Auth State
           </Label>
           <Tabs
@@ -116,23 +116,23 @@ export function UserSimulator() {
             onValueChange={(val) => setUserContext({ role: val as UserRole })}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-3 w-full h-12 bg-muted/50 p-1">
-              <TabsTrigger value="authenticated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <div className="flex flex-col items-center gap-1 py-1">
-                  <User className="w-3 h-3" />
-                  <span className="text-[10px]">Auth</span>
+            <TabsList className="grid grid-cols-3 w-full h-9 sm:h-12 bg-muted/50 p-0.5 sm:p-1">
+              <TabsTrigger value="authenticated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm text-[9px] sm:text-[10px]">
+                <div className="flex flex-col items-center gap-0.5 sm:gap-1 py-0.5 sm:py-1">
+                  <User className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
+                  <span className="text-[8px] sm:text-[10px]">Auth</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="anon" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <div className="flex flex-col items-center gap-1 py-1">
-                  <Ghost className="w-3 h-3" />
-                  <span className="text-[10px]">Anon</span>
+              <TabsTrigger value="anon" className="data-[state=active]:bg-background data-[state=active]:shadow-sm text-[9px] sm:text-[10px]">
+                <div className="flex flex-col items-center gap-0.5 sm:gap-1 py-0.5 sm:py-1">
+                  <Ghost className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
+                  <span className="text-[8px] sm:text-[10px]">Anon</span>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="service_role" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <div className="flex flex-col items-center gap-1 py-1">
-                  <Shield className="w-3 h-3" />
-                  <span className="text-[10px]">Admin</span>
+              <TabsTrigger value="service_role" className="data-[state=active]:bg-background data-[state=active]:shadow-sm text-[9px] sm:text-[10px]">
+                <div className="flex flex-col items-center gap-0.5 sm:gap-1 py-0.5 sm:py-1">
+                  <Shield className="w-2.5 sm:w-3 h-2.5 sm:h-3" />
+                  <span className="text-[8px] sm:text-[10px]">Admin</span>
                 </div>
               </TabsTrigger>
             </TabsList>
@@ -140,9 +140,9 @@ export function UserSimulator() {
         </div>
 
         {userContext.role === 'authenticated' && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="space-y-2">
-              <Label htmlFor="uid" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          <div className="space-y-3 sm:space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="uid" className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                 User ID (auth.uid)
               </Label>
               <Input
@@ -154,10 +154,10 @@ export function UserSimulator() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="jwt-claims" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="jwt-claims" className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 sm:gap-2">
                 JWT Claims (auth.jwt)
-                <Badge variant="outline" className="text-[10px] font-normal py-0">JSON</Badge>
+                <Badge variant="outline" className="text-[8px] sm:text-[10px] font-normal py-0 px-1.5 sm:px-2">JSON</Badge>
               </Label>
               <Textarea
                 id="jwt-claims"
@@ -168,15 +168,15 @@ export function UserSimulator() {
                     setUserContext({ jwt: parsed });
                   } catch (_err) {}
                 }}
-                className="bg-background/50 font-mono text-xs min-h-[100px]"
+                className="bg-background/50 font-mono text-xs min-h-[80px] sm:min-h-[100px]"
                 placeholder='{ "role": "authenticated", "org_id": "org_123" }'
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="custom-claims" className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="custom-claims" className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 sm:gap-2">
                 Custom Attributes
-                <Badge variant="outline" className="text-[10px] font-normal py-0">Merged Into JWT</Badge>
+                <Badge variant="outline" className="text-[8px] sm:text-[10px] font-normal py-0 px-1.5 sm:px-2">Merged Into JWT</Badge>
               </Label>
               <Textarea
                 id="custom-claims"
@@ -187,7 +187,7 @@ export function UserSimulator() {
                     setUserContext({ claims: parsed });
                   } catch (_err) {}
                 }}
-                className="bg-background/50 font-mono text-xs min-h-[100px]"
+                className="bg-background/50 font-mono text-xs min-h-[80px] sm:min-h-[100px]"
                 placeholder='{ "org_id": "org_123", "plan": "pro" }'
               />
             </div>
@@ -195,8 +195,8 @@ export function UserSimulator() {
         )}
         
         {userContext.role === 'anon' && (
-          <div className="py-4 px-3 bg-muted/20 border border-dashed rounded-md text-center">
-            <p className="text-xs text-muted-foreground italic">
+          <div className="py-3 sm:py-4 px-2.5 sm:px-3 bg-muted/20 border border-dashed rounded-md text-center">
+            <p className="text-[10px] sm:text-xs text-muted-foreground italic">
               Anonymous users have no UID and limited permissions by default.
             </p>
           </div>

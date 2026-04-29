@@ -49,22 +49,22 @@ export function SimulationDashboard() {
   }, [runSimulation]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card className="border-muted shadow-lg overflow-hidden">
-        <CardHeader className="py-4 px-6 border-b bg-muted/10 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/20 transition-colors" onClick={() => toggleSection('results')}>
-          <div className="flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-primary" />
-            <CardTitle className="text-base font-semibold">Simulation Results</CardTitle>
+        <CardHeader className="py-3 sm:py-4 px-3 sm:px-6 border-b bg-muted/10 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/20 transition-colors gap-2 flex-wrap" onClick={() => toggleSection('results')}>
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <Calculator className="w-4 sm:w-5 h-4 sm:h-5 text-primary shrink-0" />
+            <CardTitle className="text-sm sm:text-base font-semibold truncate">Simulation Results</CardTitle>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
             {!simulationResult?.allowed && simulationResult && (
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1.5 h-8 text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive transition-colors hidden sm:flex"
+                className="gap-1 sm:gap-1.5 h-8 text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive transition-colors hidden sm:flex text-[11px] sm:text-sm px-2 sm:px-3"
                 onClick={(e) => { e.stopPropagation(); toggleSection('troubleshoot'); }}
               >
-                <Lightbulb className="w-3.5 h-3.5" />
+                <Lightbulb className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                 How to fix?
               </Button>
             )}
@@ -72,20 +72,21 @@ export function SimulationDashboard() {
               id="run-simulation-btn"
               size="sm" 
               onClick={(e) => { e.stopPropagation(); void runSimulation(); }} 
-              className="gap-2 px-4" 
+              className="gap-1 sm:gap-2 px-2 sm:px-4 text-[11px] sm:text-sm h-8" 
               disabled={isRunning}
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              {isRunning ? 'Running...' : 'Run Check'}
+              <Play className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-current" />
+              <span className="hidden sm:inline">{isRunning ? 'Running...' : 'Run Check'}</span>
+              <span className="sm:hidden">{isRunning ? 'Run' : 'Check'}</span>
               <kbd className="hidden lg:inline-flex h-4 items-center gap-1 rounded border bg-primary-foreground/20 px-1 font-mono text-[9px] font-medium opacity-80">
                 ↵
               </kbd>
             </Button>
-            {expandedSections.results ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {expandedSections.results ? <ChevronUp className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> : <ChevronDown className="w-3.5 sm:w-4 h-3.5 sm:h-4" />}
           </div>
         </CardHeader>
         {expandedSections.results && (
-        <CardContent className="p-6">
+        <CardContent className="p-3 sm:p-6">
           {simulationResult?.parseError && (
             <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
               {simulationResult.parseError}
@@ -106,30 +107,30 @@ export function SimulationDashboard() {
                 key={simulationResult.allowed ? 'allowed' : 'denied'}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     {simulationResult.allowed ? (
-                      <div className="p-2 bg-green-500/10 rounded-full">
-                        <CheckCircle2 className="w-8 h-8 text-green-500" />
+                      <div className="p-2 bg-green-500/10 rounded-full shrink-0">
+                        <CheckCircle2 className="w-6 sm:w-8 h-6 sm:h-8 text-green-500" />
                       </div>
                     ) : (
-                      <div className="p-2 bg-destructive/10 rounded-full">
-                        <XCircle className="w-8 h-8 text-destructive" />
+                      <div className="p-2 bg-destructive/10 rounded-full shrink-0">
+                        <XCircle className="w-6 sm:w-8 h-6 sm:h-8 text-destructive" />
                       </div>
                     )}
-                    <div>
-                      <h3 className={`text-xl font-bold ${simulationResult.allowed ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+                    <div className="min-w-0">
+                      <h3 className={`text-lg sm:text-xl font-bold ${simulationResult.allowed ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
                         {simulationResult.allowed ? 'Access Allowed' : 'Access Denied'}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground break-words">
                         {simulationResult.reason}
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <Badge variant={simulationResult.allowed ? 'default' : 'destructive'} className="px-3 py-1 w-fit">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant={simulationResult.allowed ? 'default' : 'destructive'} className="px-2 sm:px-3 py-1 text-[10px] sm:text-xs">
                       {simulationResult.allowed ? 'PASS' : 'FAIL'}
                     </Badge>
                   </div>
@@ -171,52 +172,52 @@ export function SimulationDashboard() {
 
                 <Separator />
 
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                <div className="space-y-2 sm:space-y-3">
+                  <h4 className="text-[9px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
                     Evaluated Expression
                   </h4>
                   <div className="group relative">
-                    <div className="p-4 bg-muted/40 rounded-lg font-mono text-sm border border-muted/50 break-all leading-relaxed transition-colors group-hover:border-primary/30">
+                    <div className="p-2 sm:p-4 bg-muted/40 rounded-lg font-mono text-[10px] sm:text-sm border border-muted/50 break-all leading-relaxed transition-colors group-hover:border-primary/30 overflow-x-auto">
                       {simulationResult.evaluatedExpression}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+                  <div className="space-y-2 sm:space-y-3">
+                    <h4 className="text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 sm:gap-2">
                       <Users className="w-3 h-3" />
                       Session Variables
                     </h4>
-                    <div className="space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
+                    <div className="space-y-0.5 sm:space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
                       {Object.entries(simulationResult.evaluatedValues)
                         .filter(([key]) => key.startsWith('auth.'))
                         .map(([key, val]) => (
-                        <div key={key} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/50 transition-colors group">
-                          <code className="text-primary font-bold">{key}</code>
-                          <Badge variant="outline" className="font-mono text-[10px] bg-background">
+                        <div key={key} className="flex items-center justify-between text-[10px] sm:text-xs p-1 sm:p-1.5 rounded hover:bg-muted/50 transition-colors group gap-2">
+                          <code className="text-primary font-bold truncate">{key}</code>
+                          <Badge variant="outline" className="font-mono text-[9px] sm:text-[10px] bg-background flex-shrink-0">
                             {JSON.stringify(val)}
                           </Badge>
                         </div>
                       ))}
                       {Object.keys(simulationResult.evaluatedValues).filter(k => k.startsWith('auth.')).length === 0 && (
-                        <div className="text-[10px] text-muted-foreground italic p-1.5">No auth variables used.</div>
+                        <div className="text-[9px] sm:text-[10px] text-muted-foreground italic p-1 sm:p-1.5">No auth variables used.</div>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-2">
+                  <div className="space-y-2 sm:space-y-3">
+                    <h4 className="text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5 sm:gap-2">
                       <Database className="w-3 h-3" />
                       Row Columns
                     </h4>
-                    <div className="space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
+                    <div className="space-y-0.5 sm:space-y-1 bg-muted/20 rounded-md p-2 border border-dashed">
                       {Object.entries(simulationResult.evaluatedValues)
                         .filter(([key]) => !key.startsWith('auth.'))
                         .map(([key, val]) => (
-                        <div key={key} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/50 transition-colors group">
-                          <code className="text-emerald-600 dark:text-emerald-400 font-bold">{key}</code>
-                          <Badge variant="outline" className="font-mono text-[10px] bg-background">
+                        <div key={key} className="flex items-center justify-between text-[10px] sm:text-xs p-1 sm:p-1.5 rounded hover:bg-muted/50 transition-colors group gap-2">
+                          <code className="text-emerald-600 dark:text-emerald-400 font-bold truncate">{key}</code>
+                          <Badge variant="outline" className="font-mono text-[9px] sm:text-[10px] bg-background flex-shrink-0">
                             {JSON.stringify(val)}
                           </Badge>
                         </div>
@@ -235,15 +236,15 @@ export function SimulationDashboard() {
       </Card>
 
       <Card className="border-muted shadow-sm overflow-hidden">
-        <CardHeader className="py-3 px-4 border-b bg-muted/20 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => toggleSection('logic')}>
-          <div className="flex items-center gap-2">
-            <MessageSquareText className="w-4 h-4 text-primary" />
-            <CardTitle className="text-sm font-medium">Logic Flow</CardTitle>
+        <CardHeader className="py-3 sm:py-4 px-3 sm:px-6 border-b bg-muted/20 flex flex-row items-center justify-between space-y-0 cursor-pointer hover:bg-muted/30 transition-colors gap-2" onClick={() => toggleSection('logic')}>
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <MessageSquareText className="w-4 sm:w-5 h-4 sm:h-5 text-primary shrink-0" />
+            <CardTitle className="text-sm sm:text-base font-medium truncate">Logic Flow</CardTitle>
           </div>
-          {expandedSections.logic ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {expandedSections.logic ? <ChevronUp className="w-4 h-4 shrink-0" /> : <ChevronDown className="w-4 h-4 shrink-0" />}
         </CardHeader>
         {expandedSections.logic && (
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           <LogicFlow tree={simulationResult?.logicTree} />
         </CardContent>
         )}
